@@ -1,7 +1,8 @@
 from webapp import app
+from flask import render_template
 
 
 @app.route('/')
 @app.route('/index')
-def hello():
-    return "Hello World!"
+def index():
+  return render_template('index.html', title='Brows')
