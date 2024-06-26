@@ -54,7 +54,7 @@
           <button type="button" class="btn btn-primary" type="button">Войти в личный кабинет</button>
         </div>
         <div class="col-2 d-flex justify-content-end align-items-right">
-          <button type="button" class="btn btn-primary" type="button">Регистрация</button>
+          <a class="btn btn-primary" href="{{ url_for('register') }}" role="button">Регистрация</a>
         </div>
       </div>
     </div>
@@ -64,7 +64,7 @@
         <div class="container-fluid py-4">
           <h1 class="display-4 fw-bold">Акция!</h1>
           <p class="col-md-8 fs-4">Зарегистрируйтесь и получите скидку 15% на первую процедуру.</p>
-          <button class="btn btn-primary" type="button">Зарегистрироваться</button>
+          <a class="btn btn-primary" href="{{ url_for('register') }}" role="button">Зарегистрироваться</a>
         </div>
       </div>
 
