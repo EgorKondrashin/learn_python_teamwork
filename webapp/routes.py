@@ -11,10 +11,16 @@ def index():
     return render_template('index.html', title='Brows')
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register')
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
+    form = RegistrationForm()
+    return render_template('register.html', title='Регистрация', form=form)
+
+
+@app.route('/process-register', methods=['POST'])
+def process_register():
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(
@@ -28,4 +34,4 @@ def register():
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('index'))
-    return render_template('register.html', title='Регистрация', form=form)
+    return redirect(url_for('register'))
