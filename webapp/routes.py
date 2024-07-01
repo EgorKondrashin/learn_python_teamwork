@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for
+from flask import flash, render_template, redirect, url_for
 from flask_login import current_user
 from webapp import app, db
 from webapp.forms import RegistrationForm
@@ -34,4 +34,11 @@ def process_register():
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('index'))
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash('Ошибка в поле {}: {}'.format(
+                    getattr(form, field).label.text,
+                    error
+                ))
     return redirect(url_for('register'))
