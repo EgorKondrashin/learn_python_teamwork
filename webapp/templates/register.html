@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    body {
+    display: flex;
+    align-items: center;
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+</style>
+    <div class="container">
+        <h1 class="h3 mb-3 font-weight-normal text-center">{{ title }}</h1><br>
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            <form action="{{ url_for('process_register') }}" method="POST">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.first_name.label }}
+                    {{ form.first_name() }}
+                </div>
+                <div class="form-group">
+                    {{ form.last_name.label }}
+                    {{ form.last_name() }}
+                </div>
+                <div class="form-group">
+                    {{ form.email.label }}
+                    {{ form.email() }}
+                </div>
+                <div class="form-group">
+                    {{ form.phone.label }}
+                    {{ form.phone(placeholder="+7 (900) 123-45-67") }}
+                </div>
+                <div class="form-group">
+                    {{ form.password.label }}
+                    {{ form.password() }}
+                </div>
+                <div class="form-group">
+                    {{ form.password2.label }}
+                    {{ form.password2() }}
+                </div>
+                {{ form.submit() }}
+            </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
