@@ -9,10 +9,10 @@ from webapp.models import User
 
 class LoginForm(FlaskForm):
     email = StringField('Электронная почта', validators=[DataRequired(),
-                                                         Email()])
-    password = PasswordField('Пароль', validators=[DataRequired()])
-    remember_me = BooleanField('Запомнить меня')
-    submit = SubmitField('Войти')
+                                                         Email()], render_kw={"class": "form-control"})
+    password = PasswordField('Пароль', validators=[DataRequired()], render_kw={"class": "form-control"})
+    remember_me = BooleanField('Запомнить меня', render_kw={"class": "form-check-input"})
+    submit = SubmitField('Войти', render_kw={"class": "btn btn-lg btn-primary btn-block"})
 
 
 class RegistrationForm(FlaskForm):
