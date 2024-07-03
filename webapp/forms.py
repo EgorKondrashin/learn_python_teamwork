@@ -1,22 +1,27 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, \
-    Regexp
+from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
+from wtforms_alchemy import PhoneNumberField
 import sqlalchemy as sa
 from webapp import db
 from webapp.models import User
 
 
 class LoginForm(FlaskForm):
-    email = StringField('Электронная почта', validators=[DataRequired(),
-                                                         Email()], render_kw={"class": "form-control"})
-    password = PasswordField('Пароль', validators=[DataRequired()], render_kw={"class": "form-control"})
-    remember_me = BooleanField('Запомнить меня', render_kw={"class": "form-check-input"})
-    submit = SubmitField('Войти', render_kw={"class": "btn btn-lg btn-primary btn-block"})
+    email = StringField(
+        'Электронная почта',
+        validators=[DataRequired(), Email()],
+        render_kw={"class": "form-control"})
+    password = PasswordField('Пароль', validators=[DataRequired()],
+                             render_kw={"class": "form-control"})
+    remember_me = BooleanField('Запомнить меня',
+                               render_kw={"class": "form-check-input"})
+    submit = SubmitField(
+        'Войти',
+        render_kw={"class": "btn btn-lg btn-primary btn-block"})
 
 
 class RegistrationForm(FlaskForm):
-    pattern = r'\+7\s?[\(]{0,1}9[0-9]{2}[\)]{0,1}\s?\d{3}[-]{0,1}\d{2}[-]{0,1}\d{2}'
     first_name = StringField('Имя', validators=[DataRequired()],
                              render_kw={"class": "form-control"})
     last_name = StringField('Фамилия', validators=[DataRequired()],
@@ -25,11 +30,8 @@ class RegistrationForm(FlaskForm):
                         validators=[DataRequired(), Email()],
                         render_kw={"class": "form-control"}
                         )
-    phone = StringField(
-        'Номер телефона',
-        validators=[DataRequired(), Regexp(pattern, message='Введен некорректный номер телефона')],
-        render_kw={"class": "form-control"}
-    )
+    phone = PhoneNumberField('Номер телефона', validators=[DataRequired()],
+                             region='RU', render_kw={"class": "form-control"})
     password = PasswordField('Пароль', validators=[DataRequired()],
                              render_kw={"class": "form-control"})
     password2 = PasswordField(
@@ -37,8 +39,9 @@ class RegistrationForm(FlaskForm):
         validators=[DataRequired(), EqualTo('password')],
         render_kw={"class": "form-control"}
     )
-    submit = SubmitField('Зарегистрироваться',
-                         render_kw={"class": "btn btn-lg btn-primary btn-block"})
+    submit = SubmitField(
+        'Зарегистрироваться',
+        render_kw={"class": "btn btn-lg btn-primary btn-block"})
 
     def validate_email(self, email):
         user = db.session.scalar(sa.select(User).where(
