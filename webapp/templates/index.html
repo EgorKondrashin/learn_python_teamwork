@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="alert alert-success" role="alert">
+        {% for message in messages %}
+            {{ message }}<br>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endwith %}
     <div style="background-image: url('https://lisa.ru/images/cache/2019/5/23/widen_960_crop_1000_667_0_0_q90_547282_b5c582b83b.webp'); background-size: cover; background-repeat: no-repeat; width: 1110px; height: 750px"> 
     </div>
   

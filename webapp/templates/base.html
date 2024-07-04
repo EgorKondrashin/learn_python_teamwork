@@ -41,17 +41,16 @@
               <a class="nav-item nav-link" href="#">Услуги</a>
               <a class="nav-item nav-link" href="#">Портфолио</a>
               <a class="nav-item nav-link" href="#">О себе</a>
-              <a class="nav-item nav-link" href="#">Контакты</a>
               <a class="nav-item nav-link" href="#">Отзывы</a>
             </div>
-            <div class="navbar-nav col-6 justify-content-end">
+            <div class="navbar-nav col-7 justify-content-end">
               <a class="nav-item nav-link" href="{{ url_for('register') }}">Регистрация</a>
             </div>
             <div class="navbar-nav">
               {% if current_user.is_authenticated %}
-                <a class="nav-item nav-link" href="#">Выйти</a>
+                <a class="nav-item nav-link" href="{{ url_for('logout') }}">Выйти</a>
               {% else %}
-                <a class="nav-item nav-link" href="#">Войти</a>
+                <a class="nav-item nav-link" href="{{ url_for('login') }}">Войти</a>
               {% endif %}
             </div>
         </div>

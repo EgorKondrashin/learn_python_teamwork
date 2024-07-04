@@ -27,7 +27,7 @@ def process_login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
-            flash('Вы вошли в личный кабинет')
+            flash('Вы успешно вошли в личный кабинет!')
             return redirect(url_for('index'))
     flash('Неверный email или пароль')
     return redirect(url_for('login'))
@@ -36,7 +36,7 @@ def process_login():
 @app.route('/logout')
 def logout():
     logout_user()
-    flash('Вы вышли из личного кабинета')
+    flash('Вы успешно вышли из личного кабинета!')
     return redirect(url_for('index'))
 
 
@@ -62,6 +62,7 @@ def process_register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
+        flash('Вы успешно зарегистрировались!')
         return redirect(url_for('index'))
     else:
         for field, errors in form.errors.items():
