@@ -72,3 +72,8 @@ def process_register():
                     error
                 ))
     return redirect(url_for('register'))
+
+
+@app.route('/about_me')
+def about_me():
+    return render_template('about_me.html', title='Немного о себе')
