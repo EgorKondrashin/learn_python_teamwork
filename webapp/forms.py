@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 from wtforms_alchemy import PhoneNumberField
 import sqlalchemy as sa
 from webapp import db
-from webapp.models import User, Admin
+from webapp.models import User
 
 
 class LoginForm(FlaskForm):
@@ -64,4 +64,4 @@ class LoginAdminForm(FlaskForm):
             raise ValidationError('Неправильное имя пользователя')
 
     def get_user(self):
-        return db.session.query(Admin).filter_by(email=self.email.data).first()
+        return db.session.query(User).filter_by(email=self.email.data).first()

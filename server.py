@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from webapp import app, db
-from webapp.models import Admin, Appointment, Price, User, Schedule, Photo, \
+from webapp.models import Appointment, Price, User, Schedule, Photo, \
     Review
 
 
@@ -11,7 +11,6 @@ def make_shell_context():
         'sa': sa,
         'so': so,
         'db': db,
-        'Admin': Admin,
         'Appointment': Appointment,
         'Price': Price,
         'User': User,

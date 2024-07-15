@@ -10,11 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 @login.user_loader
 def load_user(id):
-    user = db.session.get(User, int(id))
-    if user is None:
-        admin = db.session.get(Admin, int(id))
-        return admin
-    return user
+    return db.session.get(User, int(id))
 
 
 class User(UserMixin, db.Model):
@@ -32,6 +28,8 @@ class User(UserMixin, db.Model):
                                              unique=True)
     discount: so.Mapped[Optional[int]] = so.mapped_column(sa.Integer)
 
+    role: so.Mapped[str] = so.mapped_column(sa.String(25), default='user')
+
     reviews: so.WriteOnlyMapped['Review'] = so.relationship(
         back_populates='author')
 
@@ -43,7 +41,7 @@ class User(UserMixin, db.Model):
 
     @property
     def is_admin(self):
-        return False
+        return self.role == 'admin'
 
     def __repr__(self):
         return f'''User: {self.id}, first_name: {self.first_name},
@@ -115,23 +113,3 @@ class Review(db.Model):
 
     def __repr__(self):
         return f'Review {self.body}'
-
-
-class Admin(UserMixin, db.Model):
-    __tablename__ = "admins"
-
-    id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True,
-                                             unique=True)
-    password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
-    role: so.Mapped[str] = so.mapped_column(sa.String(25), default='admin')
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    @property
-    def is_admin(self):
-        return self.role == 'admin'
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
