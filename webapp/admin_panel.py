@@ -42,7 +42,7 @@ class MyAdminIndexView(AdminIndexView):
 class MyModelView(ModelView):
 
     def is_accessible(self):
-        return current_user.is_authenticated
+        return current_user.is_authenticated and current_user.is_admin
 
 
 admin = admin.Admin(app, 'Brows', index_view=MyAdminIndexView(),
