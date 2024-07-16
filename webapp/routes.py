@@ -62,6 +62,7 @@ def process_register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
+        flash('Вы успешно зарегистрировались!')
         return redirect(url_for('index'))
     else:
         for field, errors in form.errors.items():
@@ -71,6 +72,11 @@ def process_register():
                     error
                 ))
     return redirect(url_for('register'))
+
+
+@app.route('/about_me')
+def about_me():
+    return render_template('about_me.html', title='Немного о себе')
 
 
 @app.route('/new-review')
