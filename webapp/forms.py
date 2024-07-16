@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, \
-    Regexp
+    Regexp, Length
 import sqlalchemy as sa
 from webapp import db
 from webapp.models import User
@@ -11,7 +11,7 @@ class LoginForm(FlaskForm):
     email = StringField('Электронная почта', validators=[DataRequired(),
                                                          Email()], render_kw={"class": "form-control"})
     password = PasswordField('Пароль', validators=[DataRequired()], render_kw={"class": "form-control"})
-    remember_me = BooleanField('Запомнить меня', render_kw={"class": "form-check-input"})
+    remember_me = BooleanField('Запомнить меня', default=True, render_kw={"class": "form-check-input"})
     submit = SubmitField('Войти', render_kw={"class": "btn btn-lg btn-primary btn-block"})
 
 
@@ -46,3 +46,10 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('''Пользователь с такой эл. почтой уже
                                   существует.''')
+
+
+class ReviewForm(FlaskForm):
+    body = TextAreaField('Ваш отзыв:', validators=[DataRequired(), Length(min=1, max=150)],
+                             render_kw={"class": "form-control", "id":"exampleFormControlTextarea1", "rows":"3"})
+    submit = SubmitField('Отправить',
+                         render_kw={"class": "btn btn-lg btn-primary btn-block"})
