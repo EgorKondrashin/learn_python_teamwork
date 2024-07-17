@@ -49,3 +49,19 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('''Пользователь с такой эл. почтой уже
                                   существует.''')
+
+
+class LoginAdminForm(FlaskForm):
+    email = StringField(
+        'Электронная почта',
+        validators=[DataRequired(), Email()])
+    password = PasswordField('Пароль', validators=[DataRequired()])
+
+    def validate_login(self, field):
+        user = self.get_user()
+
+        if user is None:
+            raise ValidationError('Неправильное имя пользователя')
+
+    def get_user(self):
+        return db.session.query(User).filter_by(email=self.email.data).first()
