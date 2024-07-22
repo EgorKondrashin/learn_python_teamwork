@@ -106,8 +106,6 @@ def review():
     title = "Отзывы"
     page = request.args.get('page', 1, type=int)
     my_review = Review.query.order_by(Review.created_at.desc())
-    if not my_review:
-        abort(404)
     reviews = db.paginate(my_review, page=page, per_page=app.config['REVIEW_PER_PAGE'], error_out=False)
     next_url = url_for('review', page=reviews.next_num) \
         if reviews.has_next else None
