@@ -66,6 +66,7 @@ class Price(db.Model):
     procedure: so.Mapped[str] = so.mapped_column(sa.String(25))
     description: so.Mapped[str] = so.mapped_column(sa.String(150))
     price: so.Mapped[int] = so.mapped_column(sa.Integer)
+    link_photo_by_procedure: so.Mapped[str] = so.mapped_column(sa.String(256))
 
     def __repr__(self):
         return f'''Procedure: {self.id}, name: {self.procedure},
@@ -85,18 +86,6 @@ class Appointment(db.Model):
 
     def __repr__(self):
         return f'Appointment: {self.id}'
-
-
-class Photo(db.Model):
-    __tablename__ = "photo_procedure"
-
-    id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    procedure_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Price.id),
-                                                    index=True)
-    link_photo_by_procedure: so.Mapped[str] = so.mapped_column(sa.String(256))
-
-    def __repr__(self):
-        return f'Photo: {self.id}'
 
 
 class Review(db.Model):

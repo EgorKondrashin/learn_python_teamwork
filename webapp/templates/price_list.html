@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+    <h1 class="h3 mb-3 py-3 font-weight-normal text-center">{{ title }}</h1><br>
+
+<div class="row row-cols-md-2 g-4 d-flex justify-content-center">
+    {% if price %}
+    {% for p in price %}
+    {% set url=url_for('static', filename='price/') %}
+        <div class="card mb-3" style="max-width: 540px;">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <img src="{{ url }}{{ p.link_photo_by_procedure }}" class="img-fluid rounded-start" alt="...">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ p.procedure }}</h5>
+                        <p class="card-text">{{ p.description }}</p>
+                        <p class="card-text"><strong>Стоимость:</strong> {{ p.price }} руб.</p>
+                        <a href="#" class="btn btn-primary">Записаться</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    {% endif %}
+</div>
+</div>
+{% endblock %}
+

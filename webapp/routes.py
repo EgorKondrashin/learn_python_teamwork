@@ -2,7 +2,7 @@ from flask import flash, render_template, redirect, url_for
 from flask_login import current_user, login_user, logout_user
 from webapp import app, db
 from webapp.forms import RegistrationForm, LoginForm
-from webapp.models import User
+from webapp.models import User, Price
 
 
 @app.route('/')
@@ -77,3 +77,10 @@ def process_register():
 @app.route('/about_me')
 def about_me():
     return render_template('about_me.html', title='Немного о себе')
+
+
+@app.route('/price_list')
+def price_list():
+    title = 'Стоимость услуг'
+    price = Price.query.all()
+    return render_template('price_list.html', title=title, price=price)
