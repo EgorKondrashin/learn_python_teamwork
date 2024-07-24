@@ -12,4 +12,4 @@ migrate = Migrate(app, db)
 login = LoginManager(app)
 login.login_view = 'login'
 
-from webapp import routes, models
+from webapp import admin_panel, routes, models

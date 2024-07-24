@@ -28,6 +28,8 @@ class User(UserMixin, db.Model):
                                              unique=True)
     discount: so.Mapped[Optional[int]] = so.mapped_column(sa.Integer)
 
+    role: so.Mapped[str] = so.mapped_column(sa.String(25), default='user')
+
     reviews: so.WriteOnlyMapped['Review'] = so.relationship(
         back_populates='author')
 
@@ -36,6 +38,10 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    @property
+    def is_admin(self):
+        return self.role == 'admin'
 
     def __repr__(self):
         return f'''User: {self.id}, first_name: {self.first_name},
