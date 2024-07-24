@@ -56,3 +56,19 @@ class ReviewForm(FlaskForm):
                              render_kw={"class": "form-control", "id":"exampleFormControlTextarea1", "rows":"3"})
     submit = SubmitField('Отправить',
                          render_kw={"class": "btn btn-lg btn-primary btn-block"})
+
+    
+class LoginAdminForm(FlaskForm):
+    email = StringField(
+        'Электронная почта',
+        validators=[DataRequired(), Email()])
+    password = PasswordField('Пароль', validators=[DataRequired()])
+
+    def validate_login(self, field):
+        user = self.get_user()
+
+        if user is None:
+            raise ValidationError('Неправильное имя пользователя')
+
+    def get_user(self):
+        return db.session.query(User).filter_by(email=self.email.data).first()
