@@ -1,16 +1,17 @@
-"""create tables
+"""Create tables
 
-Revision ID: 4db8e6252050
+Revision ID: da1c2d558370
 Revises: 
-Create Date: 2024-06-21 14:03:02.953601
+Create Date: 2024-07-24 22:09:16.819349
 
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy_utils import PhoneNumberType
 
 
 # revision identifiers, used by Alembic.
-revision = '4db8e6252050'
+revision = 'da1c2d558370'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,8 +22,10 @@ def upgrade():
     op.create_table('price_list',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('procedure', sa.String(length=25), nullable=False),
-    sa.Column('description', sa.String(length=150), nullable=False),
+    sa.Column('description', sa.String(), nullable=False),
     sa.Column('price', sa.Integer(), nullable=False),
+    sa.Column('duration', sa.Integer(), nullable=False),
+    sa.Column('link_photo_by_procedure', sa.String(length=256), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('schedules',
@@ -35,11 +38,12 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('first_name', sa.String(length=40), nullable=False),
     sa.Column('last_name', sa.String(length=50), nullable=False),
-    sa.Column('phone', sa.String(length=20), nullable=False),
+    sa.Column('phone', PhoneNumberType(length=20), nullable=False),
     sa.Column('password_hash', sa.String(length=256), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('email', sa.String(length=120), nullable=False),
     sa.Column('discount', sa.Integer(), nullable=True),
+    sa.Column('role', sa.String(length=25), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('users', schema=None) as batch_op:
@@ -59,16 +63,6 @@ def upgrade():
     with op.batch_alter_table('appointments', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_appointments_schedule_id'), ['schedule_id'], unique=False)
         batch_op.create_index(batch_op.f('ix_appointments_user_id'), ['user_id'], unique=False)
-
-    op.create_table('photo_procedure',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('procedure_id', sa.Integer(), nullable=False),
-    sa.Column('link_photo_by_procedure', sa.String(length=256), nullable=False),
-    sa.ForeignKeyConstraint(['procedure_id'], ['price_list.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    with op.batch_alter_table('photo_procedure', schema=None) as batch_op:
-        batch_op.create_index(batch_op.f('ix_photo_procedure_procedure_id'), ['procedure_id'], unique=False)
 
     op.create_table('reviews',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -92,10 +86,6 @@ def downgrade():
         batch_op.drop_index(batch_op.f('ix_reviews_created_at'))
 
     op.drop_table('reviews')
-    with op.batch_alter_table('photo_procedure', schema=None) as batch_op:
-        batch_op.drop_index(batch_op.f('ix_photo_procedure_procedure_id'))
-
-    op.drop_table('photo_procedure')
     with op.batch_alter_table('appointments', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_appointments_user_id'))
         batch_op.drop_index(batch_op.f('ix_appointments_schedule_id'))

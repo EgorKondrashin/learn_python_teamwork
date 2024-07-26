@@ -58,19 +58,39 @@ class Schedule(db.Model):
     def __repr__(self):
         return f'Schedule: {self.id}, date: {self.date_time_shedule}'
 
+    @property
+    def split_schedule_date(self):
+        return self.date_time_shedule.date()
+
+    @property
+    def split_schedule_time(self):
+        return self.date_time_shedule.time()
+
 
 class Price(db.Model):
     __tablename__ = "price_list"
 
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     procedure: so.Mapped[str] = so.mapped_column(sa.String(25))
-    description: so.Mapped[str] = so.mapped_column(sa.String(150))
+    description: so.Mapped[str] = so.mapped_column(sa.String)
     price: so.Mapped[int] = so.mapped_column(sa.Integer)
+    duration: so.Mapped[int] = so.mapped_column(sa.Integer)
     link_photo_by_procedure: so.Mapped[str] = so.mapped_column(sa.String(256))
 
     def __repr__(self):
         return f'''Procedure: {self.id}, name: {self.procedure},
          price: {self.price}'''
+
+    def __str__(self) -> str:
+        return self.procedure
+
+    @property
+    def hour(self):
+        return self.duration // 60
+
+    @property
+    def minute(self):
+        return self.duration % 60
 
 
 class Appointment(db.Model):

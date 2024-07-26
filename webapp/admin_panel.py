@@ -61,12 +61,19 @@ class PriceView(MyModelView):
         form_class.description = TextAreaField('Описание процедуры')
         return form_class
 
+    column_descriptions = {
+        'duration': 'Продолжительность процедуры в минутах!'
+    }
+
     form_args = {
         'procedure': dict(label='Название процедуры',
                           validators=[DataRequired()]),
         'description': dict(label='Описание процедуры',
                             validators=[DataRequired(), Length(max=500)]),
-        'price': dict(label='Цена', validators=[DataRequired(), NumberRange()])
+        'price': dict(label='Цена', validators=[DataRequired(),
+                                                NumberRange()]),
+        'duration': dict(label='Продолжительность', validators=[DataRequired(),
+                                                                NumberRange()])
     }
 
     form_extra_fields = {
