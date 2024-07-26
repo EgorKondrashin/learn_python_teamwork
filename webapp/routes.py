@@ -1,5 +1,5 @@
 from flask import abort, flash, render_template, redirect, request, url_for
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_user, login_required, logout_user
 from webapp import app, db
 from webapp.forms import RegistrationForm, LoginForm, ReviewForm
 from webapp.models import User, Review
@@ -80,9 +80,8 @@ def about_me():
 
 
 @app.route('/new-review')
+@login_required
 def new_review():
-    if not current_user.is_authenticated:
-        return redirect(url_for('login'))
     title = "Оставьте свой отзыв"
     review_form = ReviewForm()
     return render_template('new_review.html', page_title=title, form=review_form)
@@ -112,3 +111,8 @@ def review():
     prev_url = url_for('review', page=reviews.prev_num) \
         if reviews.has_prev else None
     return render_template('review.html', page_title=title, rev=reviews.items, next_url=next_url, prev_url=prev_url)
+
+
+@app.route('/portfolio')
+def portfolio():
+    return render_template('portfolio.html', page_title='Портфолио')
