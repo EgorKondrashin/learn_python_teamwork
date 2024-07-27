@@ -1,11 +1,12 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
-    SelectMultipleField, widgets, TextAreaField, DateTimeField
-from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length
+    SelectMultipleField, widgets, TextAreaField, DateTimeField, SelectField
+from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, \
+    Length
 from wtforms_alchemy import PhoneNumberField
 import sqlalchemy as sa
 from webapp import db
-from webapp.models import User, Price
+from webapp.models import User, Price, Schedule
 
 
 class LoginForm(FlaskForm):
@@ -81,12 +82,13 @@ class MyMultipleField(SelectMultipleField):
 
 
 class PriceForm(FlaskForm):
-    procedure = MyMultipleField('Процедуры')
-    # date = DateTimeField('Дата записи')
+    procedure = MyMultipleField('')
+    date = SelectField('Дата записи', validators=[DataRequired()])
     submit = SubmitField(
         'Записаться',
         render_kw={"class": "btn btn-lg btn-primary btn-block"}
     )
 
     def set_choices(self):
-        self.procedure.choices = [p.procedure for p in Price.query.all()]
+        self.procedure.choices = [(p.id, p.procedure) for p in Price.query.all()]
+        self.date.choices = [(schedule.id, schedule.format_date) for schedule in Schedule.query.where(Schedule.is_active==True).order_by(Schedule.date_time_shedule).all()]

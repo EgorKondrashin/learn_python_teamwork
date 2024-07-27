@@ -23,7 +23,7 @@
                         {% else %}
                             <p class="card-text"><strong>Продолжительность:</strong> {{ p.minute }} м.</p>
                         {% endif %}
-                        <a href="{{ url_for('sign_up_for_procedure', values=p.procedure) }}" class="btn btn-primary">Записаться</a>
+                        <a href="{{ url_for('sign_up_for_procedure', values=p.id) }}" class="btn btn-primary">Записаться</a>
                     </div>
                 </div>
             </div>

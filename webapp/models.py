@@ -52,7 +52,7 @@ class Schedule(db.Model):
     __tablename__ = "schedules"
 
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    date_time_shedule: so.Mapped[datetime] = so.mapped_column(sa.DateTime)
+    date_time_shedule: so.Mapped[datetime] = so.mapped_column(sa.DateTime, unique=True)
     is_active: so.Mapped[bool] = so.mapped_column(sa.Boolean, default=True)
 
     def __repr__(self):
@@ -65,6 +65,10 @@ class Schedule(db.Model):
     @property
     def split_schedule_time(self):
         return self.date_time_shedule.time()
+
+    @property
+    def format_date(self):
+        return self.date_time_shedule.strftime("%d.%m.%Y - %H:%M")
 
 
 class Price(db.Model):

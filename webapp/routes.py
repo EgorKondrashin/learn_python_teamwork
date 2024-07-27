@@ -2,8 +2,9 @@ from flask import flash, render_template, redirect, url_for, request
 from flask_login import current_user, login_user, login_required, logout_user
 from webapp import app, db
 from webapp.forms import RegistrationForm, LoginForm, PriceForm, ReviewForm
-from webapp.models import User, Price, Schedule, Review
-from collections import defaultdict
+from webapp.models import User, Price, Schedule, Review, Appointment
+from datetime import timedelta
+import sqlalchemy as sa
 
 
 @app.route('/')
@@ -89,30 +90,48 @@ def price_list():
 
 @app.route('/sign_up')
 def sign_up_for_procedure():
+    title = 'Запись на процедуры'
     procedure = request.args.get('values')
     form = PriceForm()
     form.set_choices()
     form.procedure.default = [procedure]
     form.process()
-    query_schedule = Schedule.query.where(Schedule.is_active==True).all()
-    dict_schedule = defaultdict(list)
-    for schedule in query_schedule:
-        dict_schedule[schedule.split_schedule_date.strftime('%d.%m.%Y')].append(schedule.split_schedule_time.strftime('%H:%M'))
 
-    for key, value in dict_schedule.items():
-        print(key, value)
-
-    return render_template('sign_up_procedure.html', form=form, list_date=list(dict_schedule.keys()))
+    return render_template('sign_up_procedure.html', form=form, title=title)
 
 
 @app.route('/process_sign_up', methods=["POST"])
 def process_sign_up():
     form = PriceForm()
     form.set_choices()
+    # Использовать транзакцию
     if form.validate_on_submit():
-        flash(f'Вы выбрали: {form.procedure.data}')
-        print(request.data)
-        print(form.date.data)
+        # Достаем данные из БД
+        procedures = Price.query.filter(Price.id.in_(form.procedure.data)).all()
+        sum_duration = sum([p.duration for p in procedures])
+        date_id = Schedule.query.where(Schedule.id == form.date.data).first()
+        dates = Schedule.query.filter(Schedule.date_time_shedule > date_id.date_time_shedule, Schedule.date_time_shedule < (date_id.date_time_shedule + timedelta(minutes=sum_duration))).all()
+
+        # Проверяем чтобы запись не пересекалась уже с существующей записью
+        list_id = [date_id.id]
+        for date_time in dates:
+            if not date_time.is_active:
+                flash('Мастер не успеет вас принять')
+                return redirect(url_for('index'))
+            list_id.append(date_time.id)
+
+        # Заносим данные о записи в БД
+        appointment = Appointment(
+            user_id=current_user.id,
+            schedule_id=form.date.data,
+            name_procedure=", ".join(form.procedure.data)
+        )
+        db.session.add(appointment)
+        update_schedule = sa.update(Schedule).where(Schedule.id.in_(list_id)).values(is_active=False)
+        db.session.execute(update_schedule)
+        db.session.commit()
+        flash(f'Вы успешно записались! Дата записи: {date_id.format_date}, \
+              процедуры: {", ".join([p.procedure for p in procedures])}')
     return redirect(url_for('index'))
 
 

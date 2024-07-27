@@ -10,12 +10,10 @@
             {{ form.procedure }}
           </div>
           <div class="form-group">
-            <select class="form-select" aria-label="Default select example">
-                {% for date in list_date %}
-                    <option value="{{ date }}">{{ date }}</option>
-                {% endfor %}
-            </select>
+            {{ form.date.label}}
+            {{ form.date }}
           </div>
+          <br>
           {{ form.submit }}
     </form>
 </div>
