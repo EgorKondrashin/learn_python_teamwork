@@ -1,8 +1,8 @@
-from flask import abort, flash, render_template, redirect, request, url_for
+from flask import flash, render_template, redirect, request, url_for
 from flask_login import current_user, login_user, login_required, logout_user
 from webapp import app, db
 from webapp.forms import RegistrationForm, LoginForm, ReviewForm
-from webapp.models import User, Review
+from webapp.models import User, Price, Review
 
 
 @app.route('/')
@@ -79,6 +79,13 @@ def about_me():
     return render_template('about_me.html', title='Немного о себе')
 
 
+@app.route('/price_list')
+def price_list():
+    title = 'Стоимость услуг'
+    price = Price.query.all()
+    return render_template('price_list.html', title=title, price=price)
+
+
 @app.route('/new-review')
 @login_required
 def new_review():
@@ -98,7 +105,7 @@ def process_new_review():
         db.session.add(tab_review)
         db.session.commit()
         return redirect(url_for('review'))
-    
+
 
 @app.route('/review')
 def review():
