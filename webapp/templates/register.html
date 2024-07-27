@@ -4,14 +4,12 @@
     body {
     display: flex;
     align-items: center;
-    padding-top: 40px;
-    padding-bottom: 40px;
 }
 </style>
-    <div class="container">
-        <h1 class="h3 mb-3 font-weight-normal text-center">{{ title }}</h1><br>
-        <div class="row justify-content-center">
-            <div class="col-md-4">
+<div class="container">
+    <h1 class="h3 mb-3 py-3 font-weight-normal text-center">{{ title }}</h1><br>
+    <div class="row justify-content-center">
+        <div class="col-md-4">
                 {% with messages = get_flashed_messages() %}
                     {% if messages %}
                         {% for message in messages %}
@@ -25,31 +23,33 @@
                 {{ form.hidden_tag() }}
                 <div class="form-group">
                     {{ form.first_name.label }}
-                    {{ form.first_name() }}
+                    {{ form.first_name() }} <br>
                 </div>
                 <div class="form-group">
                     {{ form.last_name.label }}
-                    {{ form.last_name() }}
+                    {{ form.last_name() }}<br>
                 </div>
                 <div class="form-group">
                     {{ form.email.label }}
-                    {{ form.email() }}
+                    {{ form.email() }}<br>
                 </div>
                 <div class="form-group">
                     {{ form.phone.label }}
-                    {{ form.phone(placeholder="+7 (900) 123-45-67") }}
+                    {{ form.phone(placeholder="+7 (900) 123-45-67") }}<br>
                 </div>
                 <div class="form-group">
                     {{ form.password.label }}
-                    {{ form.password() }}
+                    {{ form.password() }}<br>
                 </div>
                 <div class="form-group">
                     {{ form.password2.label }}
-                    {{ form.password2() }}
+                    {{ form.password2() }} <br>
                 </div>
-                {{ form.submit() }}
+                <div class="d-grid gap-2 col mx-auto">
+                    {{ form.submit() }}
+                </div>
             </form>
-            </div>
         </div>
     </div>
+</div>
 {% endblock %}

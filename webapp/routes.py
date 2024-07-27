@@ -1,8 +1,8 @@
-from flask import flash, render_template, redirect, url_for
-from flask_login import current_user, login_user, logout_user
+from flask import flash, render_template, redirect, request, url_for
+from flask_login import current_user, login_user, login_required, logout_user
 from webapp import app, db
-from webapp.forms import RegistrationForm, LoginForm
-from webapp.models import User, Price
+from webapp.forms import RegistrationForm, LoginForm, ReviewForm
+from webapp.models import User, Price, Review
 
 
 @app.route('/')
@@ -26,7 +26,7 @@ def process_login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.check_password(form.password.data):
-            login_user(user)
+            login_user(user, remember=form.remember_me.data)
             flash('Вы успешно вошли в личный кабинет!')
             return redirect(url_for('index'))
     flash('Неверный email или пароль')
@@ -84,3 +84,42 @@ def price_list():
     title = 'Стоимость услуг'
     price = Price.query.all()
     return render_template('price_list.html', title=title, price=price)
+
+
+@app.route('/new-review')
+@login_required
+def new_review():
+    title = "Оставьте свой отзыв"
+    review_form = ReviewForm()
+    return render_template('new_review.html', page_title=title, form=review_form)
+
+
+@app.route('/process-new-review', methods=['POST'])
+def process_new_review():
+    form = ReviewForm()
+    if form.validate_on_submit():
+        tab_review = Review(
+            body=form.body.data,
+            user_id=current_user.id
+        )
+        db.session.add(tab_review)
+        db.session.commit()
+        return redirect(url_for('review'))
+
+
+@app.route('/review')
+def review():
+    title = "Отзывы"
+    page = request.args.get('page', 1, type=int)
+    my_review = Review.query.order_by(Review.created_at.desc())
+    reviews = db.paginate(my_review, page=page, per_page=app.config['REVIEW_PER_PAGE'], error_out=False)
+    next_url = url_for('review', page=reviews.next_num) \
+        if reviews.has_next else None
+    prev_url = url_for('review', page=reviews.prev_num) \
+        if reviews.has_prev else None
+    return render_template('review.html', page_title=title, rev=reviews.items, next_url=next_url, prev_url=prev_url)
+
+
+@app.route('/portfolio')
+def portfolio():
+    return render_template('portfolio.html', page_title='Портфолио')

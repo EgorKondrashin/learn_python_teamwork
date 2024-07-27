@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
+from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length
 from wtforms_alchemy import PhoneNumberField
 import sqlalchemy as sa
 from webapp import db
@@ -41,7 +41,7 @@ class RegistrationForm(FlaskForm):
     )
     submit = SubmitField(
         'Зарегистрироваться',
-        render_kw={"class": "btn btn-lg btn-primary btn-block"})
+        render_kw={"class": "btn btn-primary btn-lg btn-block"})
 
     def validate_email(self, email):
         user = db.session.scalar(sa.select(User).where(
@@ -51,6 +51,13 @@ class RegistrationForm(FlaskForm):
                                   существует.''')
 
 
+class ReviewForm(FlaskForm):
+    body = TextAreaField('Ваш отзыв:', validators=[DataRequired(), Length(min=1, max=150)],
+                             render_kw={"class": "form-control", "id":"exampleFormControlTextarea1", "rows":"4"})
+    submit = SubmitField('Отправить',
+                         render_kw={"class": "btn btn-primary btn-lg btn-block"})
+
+    
 class LoginAdminForm(FlaskForm):
     email = StringField(
         'Электронная почта',
