@@ -101,6 +101,7 @@ def sign_up_for_procedure():
 
 
 @app.route('/process_sign_up', methods=["POST"])
+@login_required
 def process_sign_up():
     form = PriceForm()
     form.set_choices()
