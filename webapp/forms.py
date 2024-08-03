@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
-    SelectMultipleField, widgets, TextAreaField, DateTimeField, SelectField
+    SelectMultipleField, widgets, TextAreaField, SelectField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, \
     Length
 from wtforms_alchemy import PhoneNumberField

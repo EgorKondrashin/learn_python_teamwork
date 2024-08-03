@@ -4,7 +4,6 @@ from webapp import app, db
 from webapp.forms import RegistrationForm, LoginForm, PriceForm, ReviewForm
 from webapp.models import User, Price, Schedule, Review, Appointment
 from datetime import timedelta
-import sqlalchemy as sa
 
 
 @app.route('/')
@@ -76,19 +75,19 @@ def process_register():
     return redirect(url_for('register'))
 
 
-@app.route('/about_me')
+@app.route('/about-me')
 def about_me():
     return render_template('about_me.html', title='Немного о себе')
 
 
-@app.route('/price_list')
+@app.route('/price-list')
 def price_list():
     title = 'Стоимость услуг'
     price = Price.query.all()
     return render_template('price_list.html', title=title, price=price)
 
 
-@app.route('/sign_up')
+@app.route('/sign-up')
 def sign_up_for_procedure():
     title = 'Запись на процедуры'
     procedure = request.args.get('values')
@@ -100,7 +99,7 @@ def sign_up_for_procedure():
     return render_template('sign_up_procedure.html', form=form, title=title)
 
 
-@app.route('/process_sign_up', methods=["POST"])
+@app.route('/process-sign-up', methods=["POST"])
 @login_required
 def process_sign_up():
     form = PriceForm()
@@ -128,8 +127,7 @@ def process_sign_up():
             name_procedure=", ".join(form.procedure.data)
         )
         db.session.add(appointment)
-        update_schedule = sa.update(Schedule).where(Schedule.id.in_(list_id)).values(is_active=False)
-        db.session.execute(update_schedule)
+        Schedule.query.where(Schedule.id.in_(list_id)).update({'is_active': False})
         db.session.commit()
         flash(f'Вы успешно записались! Дата записи: {date_id.format_date}, \
               процедуры: {", ".join([p.procedure for p in procedures])}')
