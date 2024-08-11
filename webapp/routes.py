@@ -1,8 +1,11 @@
-from flask import flash, render_template, redirect, request, url_for
+from flask import flash, render_template, redirect, url_for, request
 from flask_login import current_user, login_user, login_required, logout_user
 from webapp import app, db
-from webapp.forms import RegistrationForm, LoginForm, ReviewForm
-from webapp.models import User, Price, Review
+from webapp.forms import RegistrationForm, LoginForm, PriceForm, ReviewForm
+from webapp.models import User, Price, Schedule, Review, Appointment
+from urllib.parse import urlsplit
+from webapp.service import get_target_procedures, get_sum_duration, \
+    get_date_id, get_nearby_dates
 
 
 @app.route('/')
@@ -17,20 +20,24 @@ def login():
         return redirect(url_for('index'))
     title = "Авторизация"
     login_form = LoginForm()
-    return render_template('login.html', page_title=title, form=login_form)
+    next_page = request.args.get('next')
+    return render_template('login.html', page_title=title, form=login_form, next=next_page)
 
 
 @app.route('/process-login', methods=['POST'])
 def process_login():
     form = LoginForm()
+    next_page = request.args.get('next')
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            flash('Вы успешно вошли в личный кабинет!')
-            return redirect(url_for('index'))
+            if not next_page or urlsplit(next_page).netloc != '':
+                flash('Вы успешно вошли в личный кабинет!')
+                next_page = url_for('index')
+            return redirect(next_page)
     flash('Неверный email или пароль')
-    return redirect(url_for('login'))
+    return redirect(url_for('login', next=next_page))
 
 
 @app.route('/logout')
@@ -74,16 +81,65 @@ def process_register():
     return redirect(url_for('register'))
 
 
-@app.route('/about_me')
+@app.route('/about-me')
 def about_me():
     return render_template('about_me.html', title='Немного о себе')
 
 
-@app.route('/price_list')
+@app.route('/price-list')
 def price_list():
     title = 'Стоимость услуг'
     price = Price.query.all()
     return render_template('price_list.html', title=title, price=price)
+
+
+@app.route('/sign-up')
+@login_required
+def sign_up_for_procedure():
+    title = 'Запись на процедуры'
+    procedure = request.args.getlist('values')
+    form = PriceForm()
+    form.set_choices()
+    form.procedure.default = procedure
+    form.process()
+
+    return render_template('sign_up_procedure.html', form=form, title=title)
+
+
+@app.route('/process-sign-up', methods=["POST"])
+@login_required
+def process_sign_up():
+    form = PriceForm()
+    form.set_choices()
+    # Использовать транзакцию
+    if form.validate_on_submit():
+        # Достаем данные из БД
+        procedures = get_target_procedures(procedure_list=form.procedure.data)
+        sum_duration = get_sum_duration(procedures=procedures)
+        date_id = get_date_id(id=form.date.data)
+        nearby_dates = get_nearby_dates(schedule=date_id.date_time_schedule,
+                                        duration=sum_duration)
+
+        # Проверяем чтобы запись не пересекалась с уже существующей записью
+        list_id = [date_id.id]
+        for date_time in nearby_dates:
+            if not date_time.is_active:
+                flash('Мастер не успеет вас принять, пожалуйста выберите другое время!')
+                return redirect(url_for('sign_up_for_procedure', values=form.procedure.data))
+            list_id.append(date_time.id)
+
+        # Заносим данные о записи в БД
+        appointment = Appointment(
+            user_id=current_user.id,
+            schedule_id=form.date.data,
+            name_procedure=", ".join(form.procedure.data)
+        )
+        db.session.add(appointment)
+        Schedule.query.where(Schedule.id.in_(list_id)).update({'is_active': False})
+        db.session.commit()
+        flash(f'Вы успешно записались! Дата записи: {date_id.format_date}, \
+              процедуры: {", ".join([p.procedure for p in procedures])}')
+    return redirect(url_for('index'))
 
 
 @app.route('/new-review')

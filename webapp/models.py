@@ -52,11 +52,23 @@ class Schedule(db.Model):
     __tablename__ = "schedules"
 
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    date_time_shedule: so.Mapped[datetime] = so.mapped_column(sa.DateTime)
+    date_time_schedule: so.Mapped[datetime] = so.mapped_column(sa.DateTime, unique=True)
     is_active: so.Mapped[bool] = so.mapped_column(sa.Boolean, default=True)
 
     def __repr__(self):
-        return f'Schedule: {self.id}, date: {self.date_time_shedule}'
+        return f'Schedule: {self.id}, date: {self.date_time_schedule}'
+
+    @property
+    def split_schedule_date(self):
+        return self.date_time_schedule.date()
+
+    @property
+    def split_schedule_time(self):
+        return self.date_time_schedule.time()
+
+    @property
+    def format_date(self):
+        return self.date_time_schedule.strftime("%d.%m.%Y - %H:%M")
 
 
 class Price(db.Model):
@@ -64,13 +76,25 @@ class Price(db.Model):
 
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     procedure: so.Mapped[str] = so.mapped_column(sa.String(25))
-    description: so.Mapped[str] = so.mapped_column(sa.String(150))
+    description: so.Mapped[str] = so.mapped_column(sa.String)
     price: so.Mapped[int] = so.mapped_column(sa.Integer)
+    duration: so.Mapped[int] = so.mapped_column(sa.Integer)
     link_photo_by_procedure: so.Mapped[str] = so.mapped_column(sa.String(256))
 
     def __repr__(self):
         return f'''Procedure: {self.id}, name: {self.procedure},
          price: {self.price}'''
+
+    def __str__(self) -> str:
+        return self.procedure
+
+    @property
+    def hour(self):
+        return self.duration // 60
+
+    @property
+    def minute(self):
+        return self.duration % 60
 
 
 class Appointment(db.Model):

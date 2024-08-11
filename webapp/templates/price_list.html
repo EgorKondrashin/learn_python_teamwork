@@ -18,7 +18,12 @@
                         <h5 class="card-title">{{ p.procedure }}</h5>
                         <p class="card-text">{{ p.description }}</p>
                         <p class="card-text"><strong>Стоимость:</strong> {{ p.price }} руб.</p>
-                        <a href="#" class="btn btn-primary">Записаться</a>
+                        {% if p.hour %}
+                            <p class="card-text"><strong>Продолжительность:</strong> {{ p.hour }} ч. {% if p.minute %}{{ p.minute }} м.{% endif %}</p>
+                        {% else %}
+                            <p class="card-text"><strong>Продолжительность:</strong> {{ p.minute }} м.</p>
+                        {% endif %}
+                        <a href="{{ url_for('sign_up_for_procedure', values=p.id) }}" class="btn btn-primary">Записаться</a>
                     </div>
                 </div>
             </div>
