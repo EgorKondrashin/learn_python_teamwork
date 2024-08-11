@@ -82,7 +82,7 @@ class MyMultipleField(SelectMultipleField):
 
 
 class PriceForm(FlaskForm):
-    procedure = MyMultipleField('')
+    procedure = MyMultipleField(label='')
     date = SelectField('Дата записи', validators=[DataRequired()])
     submit = SubmitField(
         'Записаться',
@@ -91,4 +91,4 @@ class PriceForm(FlaskForm):
 
     def set_choices(self):
         self.procedure.choices = [(p.id, p.procedure) for p in Price.query.all()]
-        self.date.choices = [(schedule.id, schedule.format_date) for schedule in Schedule.query.where(Schedule.is_active==True).order_by(Schedule.date_time_shedule).all()]
+        self.date.choices = [(schedule.id, schedule.format_date) for schedule in Schedule.query.where(Schedule.is_active==True).order_by(Schedule.date_time_schedule).all()]

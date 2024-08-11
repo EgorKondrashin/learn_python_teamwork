@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="alert alert-danger" role="alert">
+        {% for message in messages %}
+            {{ message }}<br>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endwith %}
 
 <div class="container">
     <h1 class="h3 mb-3 py-3 font-weight-normal text-center">{{ title }}</h1><br>

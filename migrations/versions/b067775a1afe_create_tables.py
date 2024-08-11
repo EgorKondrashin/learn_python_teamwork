@@ -1,8 +1,8 @@
 """Create tables
 
-Revision ID: da1c2d558370
+Revision ID: b067775a1afe
 Revises: 
-Create Date: 2024-07-24 22:09:16.819349
+Create Date: 2024-08-08 17:40:48.415767
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ from sqlalchemy_utils import PhoneNumberType
 
 
 # revision identifiers, used by Alembic.
-revision = 'da1c2d558370'
+revision = 'b067775a1afe'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -30,9 +30,10 @@ def upgrade():
     )
     op.create_table('schedules',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('date_time_shedule', sa.DateTime(), nullable=False),
+    sa.Column('date_time_schedule', sa.DateTime(), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=False),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('date_time_schedule')
     )
     op.create_table('users',
     sa.Column('id', sa.Integer(), nullable=False),

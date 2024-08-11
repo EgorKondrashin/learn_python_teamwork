@@ -3,7 +3,9 @@ from flask_login import current_user, login_user, login_required, logout_user
 from webapp import app, db
 from webapp.forms import RegistrationForm, LoginForm, PriceForm, ReviewForm
 from webapp.models import User, Price, Schedule, Review, Appointment
-from datetime import timedelta
+from urllib.parse import urlsplit
+from webapp.service import get_target_procedures, get_sum_duration, \
+    get_date_id, get_nearby_dates
 
 
 @app.route('/')
@@ -18,20 +20,24 @@ def login():
         return redirect(url_for('index'))
     title = "Авторизация"
     login_form = LoginForm()
-    return render_template('login.html', page_title=title, form=login_form)
+    next_page = request.args.get('next')
+    return render_template('login.html', page_title=title, form=login_form, next=next_page)
 
 
 @app.route('/process-login', methods=['POST'])
 def process_login():
     form = LoginForm()
+    next_page = request.args.get('next')
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            flash('Вы успешно вошли в личный кабинет!')
-            return redirect(url_for('index'))
+            if not next_page or urlsplit(next_page).netloc != '':
+                flash('Вы успешно вошли в личный кабинет!')
+                next_page = url_for('index')
+            return redirect(next_page)
     flash('Неверный email или пароль')
-    return redirect(url_for('login'))
+    return redirect(url_for('login', next=next_page))
 
 
 @app.route('/logout')
@@ -88,12 +94,13 @@ def price_list():
 
 
 @app.route('/sign-up')
+@login_required
 def sign_up_for_procedure():
     title = 'Запись на процедуры'
-    procedure = request.args.get('values')
+    procedure = request.args.getlist('values')
     form = PriceForm()
     form.set_choices()
-    form.procedure.default = [procedure]
+    form.procedure.default = procedure
     form.process()
 
     return render_template('sign_up_procedure.html', form=form, title=title)
@@ -107,17 +114,18 @@ def process_sign_up():
     # Использовать транзакцию
     if form.validate_on_submit():
         # Достаем данные из БД
-        procedures = Price.query.filter(Price.id.in_(form.procedure.data)).all()
-        sum_duration = sum([p.duration for p in procedures])
-        date_id = Schedule.query.where(Schedule.id == form.date.data).first()
-        dates = Schedule.query.filter(Schedule.date_time_shedule > date_id.date_time_shedule, Schedule.date_time_shedule < (date_id.date_time_shedule + timedelta(minutes=sum_duration))).all()
+        procedures = get_target_procedures(procedure_list=form.procedure.data)
+        sum_duration = get_sum_duration(procedures=procedures)
+        date_id = get_date_id(id=form.date.data)
+        nearby_dates = get_nearby_dates(schedule=date_id.date_time_schedule,
+                                        duration=sum_duration)
 
-        # Проверяем чтобы запись не пересекалась уже с существующей записью
+        # Проверяем чтобы запись не пересекалась с уже существующей записью
         list_id = [date_id.id]
-        for date_time in dates:
+        for date_time in nearby_dates:
             if not date_time.is_active:
-                flash('Мастер не успеет вас принять')
-                return redirect(url_for('index'))
+                flash('Мастер не успеет вас принять, пожалуйста выберите другое время!')
+                return redirect(url_for('sign_up_for_procedure', values=form.procedure.data))
             list_id.append(date_time.id)
 
         # Заносим данные о записи в БД
