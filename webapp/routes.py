@@ -5,7 +5,7 @@ from webapp.forms import RegistrationForm, LoginForm, PriceForm, ReviewForm
 from webapp.models import User, Price, Schedule, Review, Appointment
 from urllib.parse import urlsplit
 from webapp.service import get_target_procedures, get_sum_duration, \
-    get_date_id, get_nearby_dates
+    get_date_id, get_nearby_dates, get_schedule_ids
 
 
 @app.route('/')
@@ -128,11 +128,13 @@ def process_sign_up():
                 return redirect(url_for('sign_up_for_procedure', values=form.procedure.data))
             list_id.append(date_time.id)
 
+        new_list = get_schedule_ids(list_id)
+
         # Заносим данные о записи в БД
         appointment = Appointment(
             user_id=current_user.id,
-            schedule_id=form.date.data,
-            name_procedure=", ".join(form.procedure.data)
+            schedule=new_list,
+            procedure=procedures
         )
         db.session.add(appointment)
         Schedule.query.where(Schedule.id.in_(list_id)).update({'is_active': False})

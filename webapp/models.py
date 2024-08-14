@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Optional, List
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from sqlalchemy_utils import PhoneNumberType
@@ -11,6 +11,24 @@ from werkzeug.security import generate_password_hash, check_password_hash
 @login.user_loader
 def load_user(id):
     return db.session.get(User, int(id))
+
+
+appointment_price_table = sa.Table(
+    "appointment_price_table",
+    db.Model.metadata,
+    sa.Column("appointment_id", sa.ForeignKey("appointments.id"),
+              primary_key=True),
+    sa.Column("price_id", sa.ForeignKey("price_list.id"), primary_key=True)
+)
+
+appointment_schedule_table = sa.Table(
+    "appointment_schedule_table",
+    db.Model.metadata,
+    sa.Column("appointment_id", sa.ForeignKey("appointments.id"),
+              primary_key=True),
+    sa.Column("schedule_id", sa.ForeignKey("schedules.id"),
+              primary_key=True)
+)
 
 
 class User(UserMixin, db.Model):
@@ -52,7 +70,8 @@ class Schedule(db.Model):
     __tablename__ = "schedules"
 
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    date_time_schedule: so.Mapped[datetime] = so.mapped_column(sa.DateTime, unique=True)
+    date_time_schedule: so.Mapped[datetime] = so.mapped_column(sa.DateTime,
+                                                               unique=True)
     is_active: so.Mapped[bool] = so.mapped_column(sa.Boolean, default=True)
 
     def __repr__(self):
@@ -103,10 +122,11 @@ class Appointment(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id),
                                                index=True)
-    schedule_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Schedule.id),
-                                                   index=True)
-    name_procedure: so.Mapped[str] = so.mapped_column(sa.String(120))
     is_active: so.Mapped[bool] = so.mapped_column(sa.Boolean, default=True)
+    procedure: so.Mapped[List[Price]] = so.relationship(
+        secondary=appointment_price_table)
+    schedule: so.Mapped[List[Schedule]] = so.relationship(
+        secondary=appointment_schedule_table)
 
     def __repr__(self):
         return f'Appointment: {self.id}'
