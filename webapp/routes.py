@@ -47,17 +47,12 @@ def logout():
     return redirect(url_for('index'))
 
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = RegistrationForm()
-    return render_template('register.html', title='Регистрация', form=form)
-
-
-@app.route('/process-register', methods=['POST'])
-def process_register():
-    form = RegistrationForm()
+    print(request.form)
     if form.validate_on_submit():
         user = User(
             first_name=form.first_name.data,
@@ -71,14 +66,7 @@ def process_register():
         db.session.commit()
         flash('Вы успешно зарегистрировались!')
         return redirect(url_for('index'))
-    else:
-        for field, errors in form.errors.items():
-            for error in errors:
-                flash('Ошибка в поле {}: {}'.format(
-                    getattr(form, field).label.text,
-                    error
-                ))
-    return redirect(url_for('register'))
+    return render_template('register.html', title='Регистрация', form=form)
 
 
 @app.route('/about-me')
