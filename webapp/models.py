@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional, List
 import sqlalchemy as sa
 import sqlalchemy.orm as so
@@ -89,6 +89,18 @@ class Schedule(db.Model):
     def format_date(self):
         return self.date_time_schedule.strftime("%d.%m.%Y - %H:%M")
 
+    def get_some_schedule(id):
+        return Schedule.query.where(Schedule.id == id)
+
+    def get_target_schedules(ids_list):
+        return Schedule.query.filter(Schedule.id.in_(ids_list))
+
+    def get_nearby_dates(schedule, duration):
+        return Schedule.query.filter(
+            Schedule.date_time_schedule > schedule,
+            Schedule.date_time_schedule < (schedule + timedelta(minutes=duration))
+        )
+
 
 class Price(db.Model):
     __tablename__ = "price_list"
@@ -115,6 +127,9 @@ class Price(db.Model):
     def minute(self):
         return self.duration % 60
 
+    def get_target_procedures(ids_list):
+        return Price.query.filter(Price.id.in_(ids_list))
+
 
 class Appointment(db.Model):
     __tablename__ = "appointments"
@@ -122,6 +137,8 @@ class Appointment(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id),
                                                index=True)
+    schedule_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Schedule.id),
+                                                   index=True)
     is_active: so.Mapped[bool] = so.mapped_column(sa.Boolean, default=True)
     procedure: so.Mapped[List[Price]] = so.relationship(
         secondary=appointment_price_table)
