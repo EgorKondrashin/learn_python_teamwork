@@ -92,9 +92,6 @@ class Schedule(db.Model):
     def get_some_schedule(id):
         return Schedule.query.where(Schedule.id == id)
 
-    def get_target_schedules(ids_list):
-        return Schedule.query.filter(Schedule.id.in_(ids_list))
-
     def get_nearby_dates(schedule, duration):
         return Schedule.query.filter(
             Schedule.date_time_schedule > schedule,
