@@ -1,8 +1,8 @@
 """Create tables
 
-Revision ID: 5924ca3ab65c
+Revision ID: 960946daa503
 Revises: 
-Create Date: 2024-08-15 22:55:51.058108
+Create Date: 2024-08-19 17:35:48.450177
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ from sqlalchemy_utils import PhoneNumberType
 
 
 # revision identifiers, used by Alembic.
-revision = '5924ca3ab65c'
+revision = '960946daa503'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -54,14 +54,11 @@ def upgrade():
     op.create_table('appointments',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('schedule_id', sa.Integer(), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=False),
-    sa.ForeignKeyConstraint(['schedule_id'], ['schedules.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('appointments', schema=None) as batch_op:
-        batch_op.create_index(batch_op.f('ix_appointments_schedule_id'), ['schedule_id'], unique=False)
         batch_op.create_index(batch_op.f('ix_appointments_user_id'), ['user_id'], unique=False)
 
     op.create_table('reviews',
@@ -104,7 +101,6 @@ def downgrade():
     op.drop_table('reviews')
     with op.batch_alter_table('appointments', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_appointments_user_id'))
-        batch_op.drop_index(batch_op.f('ix_appointments_schedule_id'))
 
     op.drop_table('appointments')
     with op.batch_alter_table('users', schema=None) as batch_op:

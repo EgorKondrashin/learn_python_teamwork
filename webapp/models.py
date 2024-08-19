@@ -94,7 +94,7 @@ class Schedule(db.Model):
 
     def get_nearby_dates(schedule, duration):
         return Schedule.query.filter(
-            Schedule.date_time_schedule > schedule,
+            Schedule.date_time_schedule >= schedule,
             Schedule.date_time_schedule < (schedule + timedelta(minutes=duration))
         )
 
@@ -134,8 +134,6 @@ class Appointment(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id),
                                                index=True)
-    schedule_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Schedule.id),
-                                                   index=True)
     is_active: so.Mapped[bool] = so.mapped_column(sa.Boolean, default=True)
     procedure: so.Mapped[List[Price]] = so.relationship(
         secondary=appointment_price_table)

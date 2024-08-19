@@ -4,7 +4,7 @@ from webapp import app, db
 from webapp.forms import RegistrationForm, LoginForm, PriceForm, ReviewForm
 from webapp.models import User, Price, Schedule, Review, Appointment
 from urllib.parse import urlsplit
-from webapp.service import create_appointment_and_update_schedule
+from webapp.service import create_appointment_and_reservation_schedule
 
 
 @app.route('/')
@@ -103,7 +103,7 @@ def process_sign_up():
             flash('Необходимо выбрать процедуру!')
             return redirect(url_for('sign_up_for_procedure', values=form.procedure.data))
 
-        result = create_appointment_and_update_schedule(
+        result = create_appointment_and_reservation_schedule(
             user_id=current_user.id,
             ids_procedure=form.procedure.data,
             id_date=form.date.data)
