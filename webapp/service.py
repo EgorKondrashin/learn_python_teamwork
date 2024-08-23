@@ -14,6 +14,10 @@ def get_date_id(id):
     return Schedule.query.where(Schedule.id == id).first()
 
 
+def get_schedule_ids(ids_list):
+    return Schedule.query.filter(Schedule.id.in_(ids_list)).all()
+
+
 def get_nearby_dates(schedule, duration):
     return Schedule.query.filter(
         Schedule.date_time_schedule > schedule,
