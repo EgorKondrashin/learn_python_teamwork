@@ -4,8 +4,7 @@ from webapp import app, db
 from webapp.forms import RegistrationForm, LoginForm, PriceForm, ReviewForm
 from webapp.models import User, Price, Schedule, Review, Appointment
 from urllib.parse import urlsplit
-from webapp.service import get_target_procedures, get_sum_duration, \
-    get_date_id, get_nearby_dates, get_schedule_ids
+from webapp.service import create_appointment_and_reservation_schedule
 
 
 @app.route('/')
@@ -52,7 +51,6 @@ def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = RegistrationForm()
-    print(request.form)
     if form.validate_on_submit():
         user = User(
             first_name=form.first_name.data,
@@ -101,34 +99,21 @@ def process_sign_up():
     form.set_choices()
     # Использовать транзакцию
     if form.validate_on_submit():
-        # Достаем данные из БД
-        procedures = get_target_procedures(procedure_list=form.procedure.data)
-        sum_duration = get_sum_duration(procedures=procedures)
-        date_id = get_date_id(id=form.date.data)
-        nearby_dates = get_nearby_dates(schedule=date_id.date_time_schedule,
-                                        duration=sum_duration)
+        if not form.procedure.data:
+            flash('Необходимо выбрать процедуру!')
+            return redirect(url_for('sign_up_for_procedure', values=form.procedure.data))
 
-        # Проверяем чтобы запись не пересекалась с уже существующей записью
-        list_id = [date_id.id]
-        for date_time in nearby_dates:
-            if not date_time.is_active:
-                flash('Мастер не успеет вас принять, пожалуйста выберите другое время!')
-                return redirect(url_for('sign_up_for_procedure', values=form.procedure.data))
-            list_id.append(date_time.id)
-
-        new_list = get_schedule_ids(list_id)
-
-        # Заносим данные о записи в БД
-        appointment = Appointment(
+        result = create_appointment_and_reservation_schedule(
             user_id=current_user.id,
-            schedule=new_list,
-            procedure=procedures
-        )
-        db.session.add(appointment)
-        Schedule.query.where(Schedule.id.in_(list_id)).update({'is_active': False})
-        db.session.commit()
-        flash(f'Вы успешно записались! Дата записи: {date_id.format_date}, \
-              процедуры: {", ".join([p.procedure for p in procedures])}')
+            ids_procedure=form.procedure.data,
+            id_date=form.date.data)
+
+        if result is None:
+            flash('Мастер не успеет вас принять, пожалуйста выберите другое время!')
+            return redirect(url_for('sign_up_for_procedure', values=form.procedure.data))
+
+        flash(f'Вы успешно записались! Дата записи: {result[0]}, \
+              процедуры: {", ".join([p.procedure for p in result[1]])}')
     return redirect(url_for('index'))
 
 

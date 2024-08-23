@@ -1,8 +1,8 @@
-"""Create table
+"""Create tables
 
-Revision ID: a7b6cf571c05
+Revision ID: 960946daa503
 Revises: 
-Create Date: 2024-08-13 22:35:37.216059
+Create Date: 2024-08-19 17:35:48.450177
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ from sqlalchemy_utils import PhoneNumberType
 
 
 # revision identifiers, used by Alembic.
-revision = 'a7b6cf571c05'
+revision = '960946daa503'
 down_revision = None
 branch_labels = None
 depends_on = None
